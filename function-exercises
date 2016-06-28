@@ -1,0 +1,78 @@
+CREATE FUNCTION S1
+(
+  @title NVARCHAR(10)
+) RETURNS INT
+AS
+BEGIN
+RETURN (SELECT COUNT(B.Actor)
+FROM Movies A
+INNER JOIN MovieActors B ON A.Title = B.Title
+WHERE A.Title LIKE @title)
+END
+
+select dbo.s1('%Batman%') AS 'Actors Count'
+
+
+
+CREATE  FUNCTION S2
+(
+  @actors NVARCHAR(10)
+) RETURNS NVARCHAR(10)
+AS
+BEGIN
+RETURN (SELECT TOP 1 A.Title
+FROM Movies A
+INNER JOIN MovieActors B ON A.Title = B.Title
+WHERE B.Actor LIKE @actors)
+END
+
+SELECT dbo.S2('%Murray%') AS 'Movies'
+
+
+CREATE FUNCTION T1
+(
+  @distributor NVARCHAR(20)
+) RETURNS @myMovie TABLE(
+	myMovieTitle NVARCHAR(255),
+	myMovieMPAA NVARCHAR(255),
+	myMovieGenre NVARCHAR(255))
+AS
+BEGIN
+	INSERT @myMovie
+	SELECT A.Title, A.[MPAA Rating], B.Genre
+	FROM Movies A
+	INNER JOIN MovieGenres B ON A.Title = B.Title
+	WHERE A.Distributor = @distributor
+	RETURN
+END
+
+SELECT * FROM dbo.T1('Universal')
+
+CREATE FUNCTION T2
+(
+  @movieYear NVARCHAR(20)
+) RETURNS @moviesByYear TABLE(
+	myMovieTitle NVARCHAR(255),
+	myMovieMPAA NVARCHAR(255),
+	myMovieGenre NVARCHAR(255)
+	)
+AS
+BEGIN
+	INSERT @moviesByYear
+	SELECT A.Title, A.[MPAA Rating], B.Genre
+	FROM Movies A
+	INNER JOIN MovieGenres B ON A.Title = B.Title
+	WHERE CAST(YEAR(A.[Release Date]) AS NVARCHAR(255)) = @movieYear
+	RETURN
+END
+
+SELECT * FROM dbo.t2('2005')
+
+
+
+
+
+
+
+
+
